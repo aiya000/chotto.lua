@@ -4,11 +4,15 @@ A TypeScript **Zod-inspired** validation library for Lua with luaCATS force type
 
 - - -
 
+<div align="center">
+<img src="./readme/logo.jpg" alt="logo" width="350"/>
+</div>
+
+- - -
+
 **'Chotto'** means **'a little'** in Japanese (**ちょっと**).
 
 I hope this helps you 'a little' when adding types to Lua `:D`
-
-- - -
 
 ## 🌟 Features
 
