@@ -1,6 +1,14 @@
 # chotto.lua
 
-A TypeScript **Zod-inspired** validation library for Lua with luaCATS force type annotations.
+A TypeScript **Zod-inspired** validation library for Lua with luaCATS force type annotations!
+
+- - -
+
+**'Chotto'** means **'a little'** in Japanese (**ちょっと**).
+
+I hope this helps you 'a little' when adding types to Lua `:D`
+
+- - -
 
 ## 🌟 Features
 
