@@ -25,6 +25,9 @@ build:
 	luarocks pack $(ROCKSPEC_FILE)
 	luarocks make --local
 
+install-dependencies-for-upload:
+	luarocks install --local dkjson
+
 upload:
 	luarocks upload $(ROCKSPEC_FILE) --api-key=$(LUAROCKS_CHOTTO_LUA_API_KEY)
 
