@@ -31,7 +31,19 @@ $ luarocks install chotto
 
 ### Manual installation:
 
-Copy `src/chotto.lua` to your project and require it:
+Copy `src/chotto.lua` to your project and require it.
+
+## For Neovim:
+
+Add this to your `init.lua`:
+
+(This is assuming you are using lua 5.2. Switch these directories to your `.luarocks/share/lua` directory you installed)
+
+```lua
+-- Enable packages installed by `luarocks install --local`
+package.path = package.path .. ';' .. os.getenv('HOME') .. '/.luarocks/share/lua/5.2/?.lua'
+package.path = package.path .. ';' .. os.getenv('HOME') .. '/.luarocks/share/lua/5.2/?/init.lua'
+```
 
 ## 🚀 Quick Start
 
