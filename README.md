@@ -35,7 +35,7 @@ Copy `src/chotto.lua` to your project and require it.
 
 ## For Neovim:
 
-Add this to your `init.lua`:
+After install by 'With luarocks' way, then add this to your `init.lua`:
 
 (This is assuming you are using lua 5.2. Switch these directories to your `.luarocks/share/lua` directory you installed)
 
@@ -44,6 +44,9 @@ Add this to your `init.lua`:
 package.path = package.path .. ';' .. os.getenv('HOME') .. '/.luarocks/share/lua/5.2/?.lua'
 package.path = package.path .. ';' .. os.getenv('HOME') .. '/.luarocks/share/lua/5.2/?/init.lua'
 ```
+
+If you installed by 'Manual installation', you can simply `require()`.
+For example, when you saved chotto.lua to `~/.config/nvim/lua/chotto.lua`, can `require('chotto')`, without adding to `package.path`.
 
 ## 🚀 Quick Start
 
