@@ -1,12 +1,25 @@
 local M = {}
 
 ---@generic T
----@alias Validator<T> fun(x: unknown): T
+---@alias chotto.Validator<T> fun(x: unknown): T
 
 ---A schema for validating data.
 ---`.parse()` throws an error if `validatee` is not valid `T`.
 ---@generic T
+---@alias chotto.Schema<T> { parse: fun(validatee: unknown): T }
+---
+
+---A shorthand for `chotto.Validator`
+---@see chotto.Validator
+---@generic T
+---@alias Validator<T> fun(x: unknown): T
+
+---A shorthand for `chotto.Schema`
+---@see chotto.Schema
+---@generic T
 ---@alias Schema<T> { parse: fun(validatee: unknown): T }
+
+-- TODO: Add proof to ensure chotto.SomeType and SomeType are identical
 
 ---@type Validator<integer>
 local function is_integer(x)
@@ -114,8 +127,9 @@ end
 ---  b = M.string(),
 ---})
 ---```
----@param raw_schema table<string, Schema<unknown>>
----@return Schema<unknown>
+---@generic T : table<string, Schema<unknown>>
+---@param raw_schema T
+---@return Schema<T>
 function M.object(raw_schema)
   ---@param obj unknown
   ---@return unknown
@@ -153,8 +167,9 @@ end
 ------@type Schema<integer[]>
 ---local schema = M.array(M.integer())
 ---```
----@param item_schema Schema<unknown>
----@return Schema<unknown>
+---@generic T
+---@param item_schema Schema<T>
+---@return Schema<T[]>
 function M.array(item_schema)
   ---@param arr unknown
   ---@return unknown
@@ -180,8 +195,9 @@ end
 ------@type Schema<integer?>
 ---local schema = M.optional(M.integer())
 ---```
----@param schema Schema<unknown>
----@return Schema<unknown>
+---@generic T
+---@param schema Schema<T>
+---@return Schema<T | nil>
 function M.optional(schema)
   ---@param x unknown
   ---@return unknown
@@ -200,8 +216,14 @@ end
 ------@type Schema<string | number>
 ---local schema = M.union({ M.string(), M.number() })
 ---```
----@param schemas Schema<unknown>[]
----@return Schema<unknown>
+---Due to luaCATS limitation, we can't represent union of types directly
+---@generic Schemas : Schema<unknown>[]
+---@param schemas Schemas
+---@return Schema<unknown[]>
+----- NOTE: The below annotation is the ideal form
+----- @generic Schemas : Schema<unknown>[]
+----- @param schemas Schemas
+----- @return Schema<Schemas[number]>
 function M.union(schemas)
   ---@param x unknown
   ---@return unknown
@@ -228,8 +250,14 @@ end
 ------@type Schema<[string, number, boolean]>
 ---local schema = M.tuple({ M.string(), M.number(), M.boolean() })
 ---```
----@param schemas Schema<unknown>[]
----@return Schema<unknown>
+-----Due to luaCATS limitation, we can't represent tuple of types directly
+---@generic Schemas : Schema<unknown>[]
+---@param schemas Schemas
+---@return Schema<unknown[]>
+----- NOTE: The below annotation is the ideal form
+----- @generic Schemas : [...Schema<unknown>[]]
+----- @param schemas Schemas
+----- @return Schema<Schemas>
 function M.tuple(schemas)
   ---@param x unknown
   ---@return unknown
@@ -262,8 +290,6 @@ function M.tuple(schemas)
 end
 
 ---Creates a table schema. Can be used for general tables or typed key-value pairs.
----
----Examples:
 ---```lua
 ------@type Schema<table>
 ---local any_table = M.table()
@@ -271,9 +297,10 @@ end
 ------@type Schema<table<string, number>>
 ---local string_to_number = M.table(M.string(), M.number())
 ---```
----@param key_schema? Schema<unknown>
----@param value_schema? Schema<unknown>
----@return Schema<unknown>
+---@generic K, V
+---@param key_schema? Schema<K>
+---@param value_schema? Schema<V>
+---@return Schema<table<K, V>>
 function M.table(key_schema, value_schema)
   ---@param x unknown
   ---@return unknown
@@ -306,16 +333,17 @@ end
 ------@type Schema<"success">
 ---local success_schema = M.literal("success")
 ---```
----@param expected_value unknown
----@return Schema<unknown>
-function M.literal(expected_value)
+---@generic T
+---@param literal T
+---@return Schema<T>
+function M.literal(literal)
   ---@param x unknown
   ---@return unknown
   local function is_literal(x)
-    if x == expected_value then
+    if x == literal then
       return x
     end
-    error('Expected literal value ' .. tostring(expected_value) .. ', got: ' .. tostring(x))
+    error('Expected literal value ' .. tostring(literal) .. ', got: ' .. tostring(x))
   end
 
   return { parse = is_literal }
