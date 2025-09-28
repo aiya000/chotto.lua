@@ -29,6 +29,14 @@ I hope this helps you 'a little' when adding types to Lua `:D`
 $ luarocks install chotto
 ```
 
+Check that it is installed correctly:
+
+```shell-session
+$ eval $(luarocks path) && lua -e "local c = require('chotto'); print('required correctly!'); print('result:', c.integer().parse(10))"
+required correctly!
+result: 10
+```
+
 ### Manual installation:
 
 Copy `src/chotto.lua` to your project and require it.
