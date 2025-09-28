@@ -1,5 +1,5 @@
 package = 'chotto'
-version = 'main-4'
+version = 'main-5'
 source = {
    url = 'https://github.com/aiya000/chotto.lua'
 }
