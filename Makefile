@@ -25,6 +25,10 @@ build:
 	luarocks pack $(ROCKSPEC_FILE)
 	luarocks make --local
 
+# `$ make build` is same as install
+install-to-local:
+	$(MAKE) build
+
 install-dependencies-for-upload:
 	luarocks install --local dkjson
 
