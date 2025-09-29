@@ -37,6 +37,38 @@ required correctly!
 result: 10
 ```
 
+### With Git
+
+Possibly, 'With luarocks' method fails on some systems.
+If you met such a case, try this:
+
+```shell-session
+$ git clone https://github.com/aiya000/chotto.lua
+$ cd chotto.lua
+```
+
+Then
+
+```shell-session
+# Install to your ~/.luarocks
+$ make install-to-local
+```
+
+Or
+
+```shell-session
+# Install globally (might need sudo)
+$ luarocks pack <lua-rockspec-file> # <lua-rockspec-file> can be found in git-root. e.g., chotto-main-15.rockspec
+$ luarocks make
+```
+
+Check that it is installed correctly:
+
+```shell-session
+$ eval $(luarocks path) && lua -e "local c = require('chotto'); print('required correctly!'); print('result:', c.integer():parse(10))"
+required correctly!
+result: 10
+```
 ### Manual installation:
 
 Copy `src/chotto.lua` to your project and require it.
