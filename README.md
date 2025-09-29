@@ -32,7 +32,7 @@ $ luarocks install chotto
 Check that it is installed correctly:
 
 ```shell-session
-$ eval $(luarocks path) && lua -e "local c = require('chotto'); print('required correctly!'); print('result:', c.integer().parse(10))"
+$ eval $(luarocks path) && lua -e "local c = require('chotto'); print('required correctly!'); print('result:', c.integer():parse(10))"
 required correctly!
 result: 10
 ```
@@ -61,13 +61,13 @@ For example, when you saved chotto.lua to `~/.config/nvim/lua/chotto.lua`, can `
 ```lua
 local c = require('chotto')
 
--- Parse and validate
-local string_result = c.string().parse('hello') -- ✓ returns 'hello'
-local number_result = c.number().parse('hello') -- ✗ throws error because 'hello' is not a number
-local boolean_result = c.boolean().parse(true) -- ✓ returns true
+-- Parse and validate with method style (recommended)
+local string_result = c.string():parse('hello') -- ✓ returns 'hello'
+local number_result = c.number():parse('hello') -- ✗ throws error because 'hello' is not a number
+local boolean_result = c.boolean():parse(true) -- ✓ returns true
 
--- Safe validation with pcall -- when you don't want to throw errors
-local ok, result = pcall(number_schema.parse, 10)
+-- Safe validation with safe_parse (recommended)
+local ok, result = c.number():safe_parse(10)
 if ok then
   print('Valid:', result) -- Valid: 10
 else
@@ -79,7 +79,7 @@ Offcource, you can name `z` instead of `c`, like zod! (lol)
 
 ```lua
 local z = require('chotto')
-local result = z.string().parse('hello')
+local result = z.string():parse('hello')
 ```
 
 ## 🏗️ Complex Schemas
@@ -108,7 +108,7 @@ local user_schema = c.object({
 })
 
 ---@type User
-local user = user_schema.parse({
+local user = user_schema:parse({
   name = 'Konoko',
   age = 10,
 })
@@ -122,7 +122,7 @@ local schema = c.object({
   age = c.integer(),
 })
 
-local user = user_schema.parse({
+local user = user_schema:parse({
   name = 'Konoko',
   age = 10,
 })
@@ -141,7 +141,7 @@ local user_schema = c.object({
 })
 
 ---@type User
-local user = user_schema.parse({
+local user = user_schema:parse({
   name = 'Konoko',
   age = 10,
   extra = 'field', -- Extra fields are preserved (zod-like behavior)
@@ -155,7 +155,7 @@ local user = user_schema.parse({
 local string_array_schema = c.array(c.string())
 
 ---@type string[]
-local items = string_array_schema.parse({'a', 'b', 'c'})
+local items = string_array_schema:parse({'a', 'b', 'c'})
 
 -- No error is thrown
 ```
@@ -170,9 +170,9 @@ local string_or_number_schema = c.union({
 })
 
 ---@type string | number
-local konoko = string_or_number_schema.parse('Konoko')
+local konoko = string_or_number_schema:parse('Konoko')
 ---@type string | number
-local ten = string_or_number_schema.parse(10)
+local ten = string_or_number_schema:parse(10)
 
 -- No error is thrown
 ```
@@ -204,12 +204,12 @@ local person_schema = c.object({
 ---@type Schema<'success'>
 local success_schema = c.literal('success')
 ---@type 'success'
-local success = success_schema.parse('success')
+local success = success_schema:parse('success')
 
 ---@type Schema<42>
 local truth_schema = c.literal(42)
 ---@type 42
-local truth = truth_schema.parse(42)
+local truth = truth_schema:parse(42)
 ```
 
 ### Others
@@ -220,11 +220,11 @@ local truth = truth_schema.parse(42)
 
 chotto.lua is **strongly inspired** by **TypeScript Zod**, sharing similar:
 
-- **API design patterns** - `.parse()`, `.array()`, `.or()`, etc [^design-future]
+- **API design patterns** - `.array()`, `.or()`, `.optional()`, `:parse()`, `:safe_parse()`, etc [^design-future]
 - **Validation philosophy** - runtime validation with type safety
 - **Schema composition** - building complex types from simple ones
 
-[^design-future]: Currently, `.array()` and `.or()` and etc are not implemented yet. If you want to use these but the implementation hasn't been added yet, please push for it in an issue. lol `:D`
+[^design-future]: Currently, `.array()`, `.or()`, `.optional()` and etc are not implemented yet. If you want to use these but the implementation hasn't been added yet, please push for it in an issue. lol `:D`
 
 ### ✅ What's Similar to Zod
 
@@ -233,6 +233,7 @@ chotto.lua is **strongly inspired** by **TypeScript Zod**, sharing similar:
 - Array and tuple validation
 - Optional fields support
 - Error throwing on validation failure
+- Safe parsing with boolean result (`safe_parse()` method)
 
 ### 🔄 Key Differences from Zod
 
@@ -241,7 +242,7 @@ chotto.lua is **strongly inspired** by **TypeScript Zod**, sharing similar:
 | **Type Inference** | Automatic | Manual luaCATS annotations required |
 | **Method Chaining** | `z.string().optional()` | `c.optional(c.string())` [^design-future] |
 | **Reserved Words** | `z.function()`, `z.null()` | `c.func()`, `c.null()` [^because-keyword] |
-| **Error Handling** | Try/catch or `.safeParse()` | `pcall()` recommended |
+| **Error Handling** | Try/catch or `.safeParse()` | `:safe_parse()` or `pcall()` |
 | **Record Types** | `z.record(z.number())` or `z.record(z.string(), z.number())` | `c.table()` or `c.table(c.string(), c.number())` |
 | **Runtime** | TypeScript/JavaScript | Pure Lua |
 
