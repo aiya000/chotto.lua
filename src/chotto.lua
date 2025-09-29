@@ -4,10 +4,30 @@ local M = {}
 ---@alias chotto.Validator<T> fun(x: unknown): T
 
 ---A schema for validating data.
----`.parse()` throws an error if `validatee` is not valid `T`.
+---`:parse()` throws an error if `validatee` is not valid `T`.
+---`:safe_parse()` returns (boolean, T) where first value indicates success.
 ---@generic T
----@alias chotto.Schema<T> { parse: fun(validatee: unknown): T }
----
+---@class chotto.Schema<T> : { parse_raw: fun(validatee: unknown): T }
+---- param `parse_raw` --An internal API to use methods
+local Schema = {}
+Schema.__index = Schema
+
+---@generic T
+---@param self chotto.Schema<T>
+---@param validatee unknown
+---@return T
+function Schema:parse(validatee)
+  return self.parse_raw(validatee)
+end
+
+---@generic T
+---@param self chotto.Schema<T>
+---@param validatee unknown
+---@return boolean, T
+function Schema:safe_parse(validatee)
+  local ok, result = pcall(self.parse_raw, validatee)
+  return ok, result
+end
 
 ---A shorthand for `chotto.Validator`
 ---@see chotto.Validator
@@ -17,9 +37,10 @@ local M = {}
 ---A shorthand for `chotto.Schema`
 ---@see chotto.Schema
 ---@generic T
----@alias Schema<T> { parse: fun(validatee: unknown): T }
+---@alias Schema<T> chotto.Schema<T>
 
--- TODO: Add proof to ensure chotto.SomeType and SomeType are identical
+-- TODO: Add proof to ensure chotto.SomeType and SomeType are identical like
+-- const _proof: Equals<chotto.SomeType, SomeType> = true
 
 ---@type Validator<integer>
 local function is_integer(x)
@@ -31,7 +52,7 @@ end
 
 ---@return Schema<integer>
 function M.integer()
-  return { parse = is_integer }
+  return setmetatable({ parse_raw = is_integer }, Schema)
 end
 
 ---@type Validator<number>
@@ -44,7 +65,7 @@ end
 
 ---@return Schema<number>
 function M.number()
-  return { parse = is_number }
+  return setmetatable({ parse_raw = is_number }, Schema)
 end
 
 ---@type Validator<string>
@@ -57,7 +78,7 @@ end
 
 ---@return Schema<string>
 function M.string()
-  return { parse = is_string }
+  return setmetatable({ parse_raw = is_string }, Schema)
 end
 
 ---@type Validator<boolean>
@@ -70,7 +91,7 @@ end
 
 ---@return Schema<boolean>
 function M.boolean()
-  return { parse = is_boolean }
+  return setmetatable({ parse_raw = is_boolean }, Schema)
 end
 
 ---@type Validator<nil>
@@ -83,7 +104,7 @@ end
 
 ---@return Schema<nil>
 function M.null()
-  return { parse = is_nil }
+  return setmetatable({ parse_raw = is_nil }, Schema)
 end
 
 ---@type Validator<any>
@@ -93,7 +114,7 @@ end
 
 ---@return Schema<any>
 function M.any()
-  return { parse = is_any }
+  return setmetatable({ parse_raw = is_any }, Schema)
 end
 
 ---@type Validator<unknown>
@@ -103,7 +124,7 @@ end
 
 ---@return Schema<unknown>
 function M.unknown()
-  return { parse = is_unknown }
+  return setmetatable({ parse_raw = is_unknown }, Schema)
 end
 
 ---@type Validator<function>
@@ -116,7 +137,7 @@ end
 
 ---@return Schema<function>
 function M.func()
-  return { parse = is_func }
+  return setmetatable({ parse_raw = is_func }, Schema)
 end
 
 ---Creates an object schema. The return type should be explicitly annotated.
@@ -146,7 +167,7 @@ function M.object(raw_schema)
       if field_value == nil then
         error('Missing required field: ' .. tostring(key))
       end
-      validated[key] = schema.parse(field_value)
+      validated[key] = schema.parse_raw(field_value)
     end
 
     -- Copy over any extra fields (zod-like behavior: allow unknown properties)
@@ -159,7 +180,7 @@ function M.object(raw_schema)
     return validated
   end
 
-  return { parse = is_that_object }
+  return setmetatable({ parse_raw = is_that_object }, Schema)
 end
 
 ---Creates an array schema. The return type should be explicitly annotated.
@@ -181,13 +202,13 @@ function M.array(item_schema)
     local validated = {}
 
     for i, item in ipairs(arr) do
-      validated[i] = item_schema.parse(item)
+      validated[i] = item_schema.parse_raw(item)
     end
 
     return validated
   end
 
-  return { parse = is_that_array }
+  return setmetatable({ parse_raw = is_that_array }, Schema)
 end
 
 ---Creates an optional schema that accepts nil.
@@ -205,10 +226,10 @@ function M.optional(schema)
     if x == nil then
       return nil
     end
-    return schema.parse(x)
+    return schema.parse_raw(x)
   end
 
-  return { parse = is_optional }
+  return setmetatable({ parse_raw = is_optional }, Schema)
 end
 
 ---Creates a union schema that accepts multiple types. Type annotation required.
@@ -231,7 +252,7 @@ function M.union(schemas)
     local errors = {}
 
     for i, schema in ipairs(schemas) do
-      local ok, result = pcall(schema.parse, x)
+      local ok, result = pcall(schema.parse_raw, x)
       if ok then
         return result
       else
@@ -242,7 +263,7 @@ function M.union(schemas)
     error('Union validation failed. Errors: ' .. table.concat(errors, '; '))
   end
 
-  return { parse = is_union }
+  return setmetatable({ parse_raw = is_union }, Schema)
 end
 
 ---Creates a tuple schema for fixed-length arrays. Type annotation required.
@@ -273,7 +294,7 @@ function M.tuple(schemas)
       if value == nil then
         error('Missing tuple element at index ' .. i)
       end
-      validated[i] = schema.parse(value)
+      validated[i] = schema.parse_raw(value)
     end
 
     -- Check for extra elements
@@ -286,7 +307,7 @@ function M.tuple(schemas)
     return validated
   end
 
-  return { parse = is_tuple }
+  return setmetatable({ parse_raw = is_tuple }, Schema)
 end
 
 ---Creates a table schema. Can be used for general tables or typed key-value pairs.
@@ -317,15 +338,15 @@ function M.table(key_schema, value_schema)
     local validated = {}
 
     for k, v in pairs(x) do
-      local validated_key = key_schema and key_schema.parse(k) or k
-      local validated_value = value_schema and value_schema.parse(v) or v
+      local validated_key = key_schema and key_schema.parse_raw(k) or k
+      local validated_value = value_schema and value_schema.parse_raw(v) or v
       validated[validated_key] = validated_value
     end
 
     return validated
   end
 
-  return { parse = is_table }
+  return setmetatable({ parse_raw = is_table }, Schema)
 end
 
 ---Creates a literal schema that only accepts a specific value.
@@ -346,7 +367,7 @@ function M.literal(literal)
     error('Expected literal value ' .. tostring(literal) .. ', got: ' .. tostring(x))
   end
 
-  return { parse = is_literal }
+  return setmetatable({ parse_raw = is_literal }, Schema)
 end
 
 return M
