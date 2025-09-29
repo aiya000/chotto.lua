@@ -35,6 +35,9 @@ install-dependencies-for-upload:
 upload:
 	luarocks upload $(ROCKSPEC_FILE) --api-key=$(LUAROCKS_CHOTTO_LUA_API_KEY)
 
+release:
+	./scripts/release.sh $(VER)
+
 clean:
 	@echo "Cleaning up..."
 	rm -f luacov.*.out
