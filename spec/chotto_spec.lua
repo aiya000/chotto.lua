@@ -307,3 +307,42 @@ describe('method style parsing', function()
     end)
   end)
 end)
+
+describe('Schema:ensure()', function()
+  it('should not throw error for valid input', function()
+    assert.has_no.errors(function()
+      c.string():ensure('hello')
+    end)
+  end)
+
+  it('should throw error for invalid input', function()
+    assert.has_error(function()
+      c.string():ensure(42)
+    end)
+  end)
+
+  it('should call error handler when provided and validation fails', function()
+    local error_captured = nil
+
+    assert.has_no.errors(function()
+      c.integer():ensure('not a number', function(err)
+        error_captured = err
+      end)
+    end)
+
+    assert.is_string(error_captured)
+    assert.matches('Expected integer', error_captured)
+  end)
+
+  it('should not call error handler when validation succeeds', function()
+    local error_captured = nil
+
+    assert.has_no.errors(function()
+      c.string():ensure('hello', function(err)
+        error_captured = err
+      end)
+    end)
+
+    assert.are.equal(error_captured, nil)
+  end)
+end)
