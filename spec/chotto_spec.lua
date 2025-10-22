@@ -3,9 +3,9 @@ local c = require('chotto')
 describe('integer()', function()
   it('should accept integers', function()
     local schema = c.integer()
-    assert.are.equal(42, schema:parse(42))
-    assert.are.equal(0, schema:parse(0))
-    assert.are.equal(-10, schema:parse(-10))
+    assert.are.equal(schema:parse(42), 42)
+    assert.are.equal(schema:parse(0), 0)
+    assert.are.equal(schema:parse(-10), -10)
   end)
 
   it('should reject non-integers', function()
@@ -25,8 +25,8 @@ end)
 describe('string()', function()
   it('should accept strings', function()
     local schema = c.string()
-    assert.are.equal('hello', schema:parse('hello'))
-    assert.are.equal('', schema:parse(''))
+    assert.are.equal(schema:parse('hello'), 'hello')
+    assert.are.equal(schema:parse(''), '')
   end)
 
   it('should reject non-strings', function()
@@ -43,24 +43,24 @@ end)
 describe('number()', function()
   it('should accept numbers', function()
     local schema = c.number()
-    assert.are.equal(42, schema:parse(42))
-    assert.are.equal(3.14, schema:parse(3.14))
-    assert.are.equal(-0.5, schema:parse(-0.5))
+    assert.are.equal(schema:parse(42), 42)
+    assert.are.equal(schema:parse(3.14), 3.14)
+    assert.are.equal(schema:parse(-0.5), -0.5)
   end)
 end)
 
 describe('boolean()', function()
   it('should accept booleans', function()
     local schema = c.boolean()
-    assert.are.equal(true, schema:parse(true))
-    assert.are.equal(false, schema:parse(false))
+    assert.are.equal(schema:parse(true), true)
+    assert.are.equal(schema:parse(false), false)
   end)
 end)
 
 describe('null()', function()
   it('should accept nil', function()
     local schema = c.null()
-    assert.are.equal(nil, schema:parse(nil))
+    assert.are.equal(schema:parse(nil), nil)
   end)
 
   it('should reject non-nil values', function()
@@ -77,10 +77,10 @@ end)
 describe('any()', function()
   it('should accept anything', function()
     local schema = c.any()
-    assert.are.equal('hello', schema:parse('hello'))
-    assert.are.equal(42, schema:parse(42))
-    assert.are.equal(nil, schema:parse(nil))
-    assert.are.same({}, schema:parse({}))
+    assert.are.equal(schema:parse('hello'), 'hello')
+    assert.are.equal(schema:parse(42), 42)
+    assert.are.equal(schema:parse(nil), nil)
+    assert.are.same(schema:parse({}), {})
   end)
 end)
 
@@ -88,7 +88,7 @@ describe('func()', function()
   it('should accept functions', function()
     local schema = c.func()
     local test_func = function() end
-    assert.are.equal(test_func, schema:parse(test_func))
+    assert.are.equal(schema:parse(test_func), test_func)
   end)
 
   it('should reject non-functions', function()
@@ -107,8 +107,8 @@ describe('object()', function()
     })
 
     local result = schema:parse({ name = 'Alice', age = 30 })
-    assert.are.equal('Alice', result.name)
-    assert.are.equal(30, result.age)
+    assert.are.equal(result.name, 'Alice')
+    assert.are.equal(result.age, 30)
   end)
 
   it('should reject missing fields', function()
@@ -131,9 +131,9 @@ describe('object()', function()
     })
 
     local result = schema:parse({ name = 'Alice', extra = 'field', another = 42 })
-    assert.are.equal('Alice', result.name)
-    assert.are.equal('field', result.extra)
-    assert.are.equal(42, result.another)
+    assert.are.equal(result.name, 'Alice')
+    assert.are.equal(result.extra, 'field')
+    assert.are.equal(result.another, 42)
   end)
 end)
 
@@ -142,9 +142,9 @@ describe('array()', function()
     local schema = c.array(c.string())
 
     local result = schema:parse({ 'a', 'b', 'c' })
-    assert.are.equal('a', result[1])
-    assert.are.equal('b', result[2])
-    assert.are.equal('c', result[3])
+    assert.are.equal(result[1], 'a')
+    assert.are.equal(result[2], 'b')
+    assert.are.equal(result[3], 'c')
   end)
 
   it('should reject invalid elements', function()
@@ -158,16 +158,16 @@ end)
 describe('optional()', function()
   it('should accept nil', function()
     local schema = c.optional(c.string())
-    assert.are.equal(nil, schema:parse(nil))
-    assert.are.equal('hello', schema:parse('hello'))
+    assert.are.equal(schema:parse(nil), nil)
+    assert.are.equal(schema:parse('hello'), 'hello')
   end)
 end)
 
 describe('union()', function()
   it('should accept any of the provided types', function()
     local schema = c.union({ c.string(), c.number() })
-    assert.are.equal('hello', schema:parse('hello'))
-    assert.are.equal(42, schema:parse(42))
+    assert.are.equal(schema:parse('hello'), 'hello')
+    assert.are.equal(schema:parse(42), 42)
   end)
 
   it('should reject types not in the union', function()
@@ -183,9 +183,9 @@ describe('tuple()', function()
     local schema = c.tuple({ c.string(), c.number(), c.boolean() })
 
     local result = schema:parse({ 'hello', 42, true })
-    assert.are.equal('hello', result[1])
-    assert.are.equal(42, result[2])
-    assert.are.equal(true, result[3])
+    assert.are.equal(result[1], 'hello')
+    assert.are.equal(result[2], 42)
+    assert.are.equal(result[3], true)
   end)
 
   it('should reject wrong length', function()
@@ -203,22 +203,22 @@ describe('table()', function()
   it('should accept any table when no schemas provided', function()
     local schema = c.table()
     local input = { a = 1, b = 'hello' }
-    assert.are.same(input, schema:parse(input))
+    assert.are.same(schema:parse(input), input)
   end)
 
   it('should validate key-value pairs', function()
     local schema = c.table(c.string(), c.number())
 
     local result = schema:parse({ hello = 1, world = 2 })
-    assert.are.equal(1, result.hello)
-    assert.are.equal(2, result.world)
+    assert.are.equal(result.hello, 1)
+    assert.are.equal(result.world, 2)
   end)
 end)
 
 describe('literal()', function()
   it('should only accept the exact value', function()
     local schema = c.literal('success')
-    assert.are.equal('success', schema:parse('success'))
+    assert.are.equal(schema:parse('success'), 'success')
     assert.has_error(function()
       schema:parse('failure')
     end)
@@ -229,36 +229,10 @@ describe('literal()', function()
 
   it('should work with numbers', function()
     local schema = c.literal(42)
-    assert.are.equal(42, schema:parse(42))
+    assert.are.equal(schema:parse(42), 42)
     assert.has_error(function()
       schema:parse(41)
     end)
-  end)
-end)
-
-describe('integration tests', function()
-  it('should handle complex nested schemas', function()
-    local schema = c.object({
-      user = c.object({
-        name = c.string(),
-        age = c.integer(),
-      }),
-      status = c.union({ c.literal('active'), c.literal('inactive') }),
-      tags = c.array(c.string()),
-      metadata = c.optional(c.table()),
-    })
-
-    local valid_data = {
-      user = { name = 'Alice', age = 25 },
-      status = 'active',
-      tags = { 'admin', 'user' },
-      metadata = { created = '2023-01-01' },
-    }
-
-    local result = schema:parse(valid_data)
-    assert.are.equal('Alice', result.user.name)
-    assert.are.equal('active', result.status)
-    assert.are.equal('admin', result.tags[1])
   end)
 end)
 
@@ -267,7 +241,7 @@ describe('safe_parse method', function()
     local schema = c.string()
     local ok, result = schema:safe_parse('hello')
     assert.is_true(ok)
-    assert.are.equal('hello', result)
+    assert.are.equal(result, 'hello')
   end)
 
   it('should return (false, error) for invalid input', function()
@@ -287,24 +261,14 @@ describe('safe_parse method', function()
     -- Valid data
     local ok, result = user_schema:safe_parse({ name = 'Alice', age = 30 })
     assert.is_true(ok)
-    assert.are.equal('Alice', result.name)
-    assert.are.equal(30, result.age)
+    assert.are.equal(result.name, 'Alice')
+    assert.are.equal(result.age, 30)
 
     -- Invalid data
     local ok2, error_msg = user_schema:safe_parse({ name = 'Bob' })
     assert.is_false(ok2)
     assert.is_string(error_msg)
     assert.matches('Missing required field', error_msg)
-  end)
-end)
-
-describe('method style parsing', function()
-  it('should support :parse method', function()
-    local schema = c.integer()
-    assert.are.equal(42, schema:parse(42))
-    assert.has_error(function()
-      schema:parse('not a number')
-    end)
   end)
 end)
 
@@ -344,5 +308,53 @@ describe('Schema:ensure()', function()
     end)
 
     assert.are.equal(error_captured, nil)
+  end)
+end)
+
+describe('integration tests', function()
+  it('should handle nested objects', function()
+    local schema = c.object({
+      user = c.object({
+        name = c.string(),
+        age = c.integer(),
+      }),
+    })
+
+    local result = schema:parse({
+      user = { name = 'Alice', age = 25 },
+    })
+    assert.are.equal(result.user.name, 'Alice')
+    assert.are.equal(result.user.age, 25)
+  end)
+
+  it('should handle union with literals', function()
+    local schema = c.object({
+      status = c.union({ c.literal('active'), c.literal('inactive') }),
+    })
+
+    local result = schema:parse({ status = 'active' })
+    assert.are.equal(result.status, 'active')
+  end)
+
+  it('should handle array fields', function()
+    local schema = c.object({
+      tags = c.array(c.string()),
+    })
+
+    local result = schema:parse({ tags = { 'admin', 'user' } })
+    assert.are.equal(result.tags[1], 'admin')
+    assert.are.equal(result.tags[2], 'user')
+  end)
+
+  it('should handle optional fields', function()
+    local schema = c.object({
+      metadata = c.optional(c.table()),
+    })
+
+    local result1 = schema:parse({ metadata = { created = '2023-01-01' } })
+    assert.are.equal(result1.metadata.created, '2023-01-01')
+
+    local result2 = schema:parse({})
+    assert.is_nil(result2.metadata)
   end)
 end)
