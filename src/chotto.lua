@@ -43,9 +43,15 @@ end
 ---@param handle? fun(err: string)
 ---@return nil
 function Schema:ensure(validatee, handle)
+  if handle == nil then
+    self.parse_raw(validatee)
+    return
+  end
+
   local ok, result = pcall(self.parse_raw, validatee)
-  if not ok and handle ~= nil then
+  if not ok then
     handle(result)
+    return
   end
 end
 
