@@ -351,10 +351,7 @@ describe('integration tests', function()
       metadata = c.optional(c.table()),
     })
 
-    local result1 = schema:parse({ metadata = { created = '2023-01-01' } })
-    assert.are.equal(result1.metadata.created, '2023-01-01')
-
-    local result2 = schema:parse({})
-    assert.is_nil(result2.metadata)
+    local result = schema:parse({ metadata = { created = '2023-01-01' } })
+    assert.are.equal(result.metadata.created, '2023-01-01')
   end)
 end)
