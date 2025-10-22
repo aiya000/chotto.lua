@@ -3,15 +3,15 @@ local M = {}
 ---@generic T
 ---@alias chotto.Validator<T> fun(x: unknown): T
 
----A schema for validating data.
----`:parse()` throws an error if `validatee` is not valid `T`.
----`:safe_parse()` returns (boolean, T) where first value indicates success.
+---A schema for validating data
 ---@generic T
 ---@class chotto.Schema<T> : { parse_raw: fun(validatee: unknown): T }
 ---- param `parse_raw` --An internal API to use methods
 local Schema = {}
 Schema.__index = Schema
 
+---Returns `T` if `validatee` is valid `T`.
+---Or throws an error if invalid.
 ---@generic T
 ---@param self chotto.Schema<T>
 ---@param validatee unknown
@@ -20,6 +20,12 @@ function Schema:parse(validatee)
   return self.parse_raw(validatee)
 end
 
+---Simular to `:parse()`, but returns `boolean, T` instead, like:
+---```lua
+---pcall(function() return foo:parse(validatee) end)
+---```
+---Returns `true, T` if valid.
+---Or `false, string` if invalid (`string` is an error message).
 ---@generic T
 ---@param self chotto.Schema<T>
 ---@param validatee unknown
@@ -27,6 +33,20 @@ end
 function Schema:safe_parse(validatee)
   local ok, result = pcall(self.parse_raw, validatee)
   return ok, result
+end
+
+---Simular to `:parse()`, but no value returns, and throws an error if `validatee` is invalid.
+---Also catches the error by `handle` if provided and an error is thrown.
+---@generic T
+---@param self chotto.Schema<T>
+---@param validatee unknown
+---@param handle? fun(err: string)
+---@return nil
+function Schema:ensure(validatee, handle)
+  local ok, result = pcall(self.parse_raw, validatee)
+  if not ok and handle ~= nil then
+    handle(result)
+  end
 end
 
 ---A shorthand for `chotto.Validator`
