@@ -31,8 +31,9 @@ end
 ---@param validatee unknown
 ---@return boolean, T
 function Schema:safe_parse(validatee)
-  local ok, result = pcall(self.parse_raw, validatee)
-  return ok, result
+  return pcall(function()
+    return self:parse(validatee)
+  end)
 end
 
 ---Simular to `:parse()`, but no value returns, and throws an error if `validatee` is invalid.
@@ -44,11 +45,11 @@ end
 ---@return nil
 function Schema:ensure(validatee, handle)
   if handle == nil then
-    self.parse_raw(validatee)
+    self:parse(validatee)
     return
   end
 
-  local ok, result = pcall(self.parse_raw, validatee)
+  local ok, result = self:safe_parse(validatee)
   if not ok then
     handle(result)
     return
