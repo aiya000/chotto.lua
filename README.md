@@ -21,6 +21,34 @@ I hope this helps you 'a little' when adding types to Lua `:D`
 - **Zero dependencies** -- pure Lua implementation
 - **Rich type system** -- objects, arrays, unions, tuples, and more
 
+## 🚀 Quick Start
+
+```lua
+local c = require('chotto')
+
+-- Parse and validate with method style (recommended)
+local string_result = c.string():parse('hello') -- ✓ returns 'hello'
+local number_result = c.number():parse('hello') -- ✗ throws error because 'hello' is not a number
+local boolean_result = c.boolean():parse(true) -- ✓ returns true
+
+-- Safe validation with safe_parse (recommended)
+local ok, result = c.number():safe_parse(10)
+if ok then
+  print('Valid:', result) -- Valid: 10
+else
+  print('Error:', result) -- Error message
+end
+```
+
+Offcource, you can name `z` instead of `c`, like zod! (lol)
+
+```lua
+local z = require('chotto')
+local result = z.string():parse('hello')
+```
+
+See [Basic Usage](#️-basic-usage) and [Examples](doc/examples.md) for more details.
+
 ## 📦 Installation
 
 ### With luarocks:
@@ -88,30 +116,22 @@ package.path = package.path .. ';' .. os.getenv('HOME') .. '/.luarocks/share/lua
 If you installed by 'Manual installation', you can simply `require()`.
 For example, when you saved chotto.lua to `~/.config/nvim/lua/chotto.lua`, can `require('chotto')`, without adding to `package.path`.
 
-## 🚀 Quick Start
+## ⚙️ Basic Usage
+
+### Additional API
+
+chotto.lua also provides these original APIs not found in Zod:
 
 ```lua
-local c = require('chotto')
+-- No error is thrown, handler is called instead
+c.integer():ensure('not a number', function(err)
+  print('Validation failed:', err)
+end)
 
--- Parse and validate with method style (recommended)
-local string_result = c.string():parse('hello') -- ✓ returns 'hello'
-local number_result = c.number():parse('hello') -- ✗ throws error because 'hello' is not a number
-local boolean_result = c.boolean():parse(true) -- ✓ returns true
-
--- Safe validation with safe_parse (recommended)
-local ok, result = c.number():safe_parse(10)
-if ok then
-  print('Valid:', result) -- Valid: 10
-else
-  print('Error:', result) -- Error message
-end
-```
-
-Offcource, you can name `z` instead of `c`, like zod! (lol)
-
-```lua
-local z = require('chotto')
-local result = z.string():parse('hello')
+-- The handler is optional.
+-- Without a handler, it behaves like :parse() but returns nothing.
+c.string():ensure('hello') -- ✓ No error, no return value
+c.string():ensure(123) -- ✗ Throws error
 ```
 
 ## 🏗️ Complex Schemas
@@ -265,7 +285,8 @@ chotto.lua is **strongly inspired** by **TypeScript Zod**, sharing similar:
 - Array and tuple validation
 - Optional fields support
 - Error throwing on validation failure
-- Safe parsing with boolean result (`safe_parse()` method)
+- Safe parsing with boolean result (`:safe_parse()` method)
+- Validation without return value (`:ensure()` method)
 
 ### 🔄 Key Differences from Zod
 

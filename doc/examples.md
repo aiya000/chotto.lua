@@ -56,13 +56,14 @@ c.literal(value)
 
 ### Schema Methods
 
-Every schema has one method:
+Every schema has two main methods:
 
 ```lua
-schema.parse(data) -- Validates and returns data, throws error on failure
+schema:parse(data)              -- Validates and returns data, throws error on failure
+schema:safe_parse(data)         -- Returns (true, data) on success or (false, error_msg) on failure
 ```
 
-## Basic Examples
+There is also an additional method `:ensure()` for validation without return values. See [Validation with ensure()](#validation-with-ensure) for details.
 
 ### Primitive Types
 
@@ -71,36 +72,36 @@ local c = require('chotto')
 
 -- String validation
 local name_schema = c.string()
-local name = name_schema.parse('Alice')           -- ✓ 'Alice'
--- name_schema.parse(123)                         -- ✗ Error
+local name = name_schema:parse('Alice')           -- ✓ 'Alice'
+-- name_schema:parse(123)                         -- ✗ Error
 
 -- Number validation
 local age_schema = c.number()
-local age = age_schema.parse(25)                  -- ✓ 25
-local height = age_schema.parse(5.9)              -- ✓ 5.9 (floats OK)
+local age = age_schema:parse(25)                  -- ✓ 25
+local height = age_schema:parse(5.9)              -- ✓ 5.9 (floats OK)
 
 -- Integer-only validation
 local count_schema = c.integer()
-local count = count_schema.parse(42)              -- ✓ 42
--- count_schema.parse(3.14)                       -- ✗ Error (no floats)
+local count = count_schema:parse(42)              -- ✓ 42
+-- count_schema:parse(3.14)                       -- ✗ Error (no floats)
 
 -- Boolean validation
 local active_schema = c.boolean()
-local is_active = active_schema.parse(true)       -- ✓ true
+local is_active = active_schema:parse(true)       -- ✓ true
 
 -- Nil validation
 local empty_schema = c.null()
-local empty = empty_schema.parse(nil)             -- ✓ nil
+local empty = empty_schema:parse(nil)             -- ✓ nil
 
 -- Function validation
 local callback_schema = c.func()
-local fn = callback_schema.parse(function() end)  -- ✓ function
+local fn = callback_schema:parse(function() end)  -- ✓ function
 
 -- Any value validation
 local flexible_schema = c.any()
-local anything = flexible_schema.parse('anything') -- ✓ 'anything'
-local number = flexible_schema.parse(42)           -- ✓ 42
-local table = flexible_schema.parse({})            -- ✓ {}
+local anything = flexible_schema:parse('anything') -- ✓ 'anything'
+local number = flexible_schema:parse(42)           -- ✓ 42
+local table = flexible_schema:parse({})            -- ✓ {}
 ```
 
 ### Object Validation
@@ -113,7 +114,7 @@ local person_schema = c.object({
   age = c.integer(),
 })
 
-local person = person_schema.parse({
+local person = person_schema:parse({
   name = 'Bob',
   age = 30,
   extra = 'field'  -- Extra fields are preserved (zod-like behavior)
@@ -134,7 +135,7 @@ local profile_schema = c.object({
   })
 })
 
-local profile = profile_schema.parse({
+local profile = profile_schema:parse({
   user = {
     name = 'Alice',
     email = 'alice@example.com'
@@ -151,12 +152,12 @@ local profile = profile_schema.parse({
 -- String array
 ---@type Schema<string[]>
 local tags_schema = c.array(c.string())
-local tags = tags_schema.parse({'lua', 'validation', 'library'})
+local tags = tags_schema:parse({'lua', 'validation', 'library'})
 
 -- Number array
 ---@type Schema<number[]>
 local scores_schema = c.array(c.number())
-local scores = scores_schema.parse({95.5, 87, 92.3})
+local scores = scores_schema:parse({95.5, 87, 92.3})
 
 -- Object array
 ---@type Schema<{name: string, age: integer}[]>
@@ -165,7 +166,7 @@ local users_schema = c.array(c.object({
   age = c.integer(),
 }))
 
-local users = users_schema.parse({
+local users = users_schema:parse({
   {name = 'Alice', age = 25},
   {name = 'Bob', age = 30}
 })
@@ -173,7 +174,7 @@ local users = users_schema.parse({
 -- Nested arrays
 ---@type Schema<string[][]>
 local matrix_schema = c.array(c.array(c.string()))
-local matrix = matrix_schema.parse({
+local matrix = matrix_schema:parse({
   {'a', 'b', 'c'},
   {'d', 'e', 'f'}
 })
@@ -189,8 +190,8 @@ local id_schema = c.union({
   c.number()
 })
 
-local id1 = id_schema.parse('user123')  -- ✓ string
-local id2 = id_schema.parse(42)         -- ✓ number
+local id1 = id_schema:parse('user123')  -- ✓ string
+local id2 = id_schema:parse(42)         -- ✓ number
 
 -- Status enum
 ---@type Schema<'pending' | 'success' | 'error'>
@@ -200,7 +201,7 @@ local status_schema = c.union({
   c.literal('error')
 })
 
-local status = status_schema.parse('success') -- ✓
+local status = status_schema:parse('success') -- ✓
 
 -- Complex union
 ---@type Schema<string | {type: 'object', data: table}>
@@ -212,8 +213,8 @@ local flexible_data = c.union({
   })
 })
 
-local data1 = flexible_data.parse('simple string')
-local data2 = flexible_data.parse({
+local data1 = flexible_data:parse('simple string')
+local data2 = flexible_data:parse({
   type = 'object',
   data = {key = 'value'}
 })
@@ -225,8 +226,8 @@ local data2 = flexible_data.parse({
 -- Optional string
 ---@type Schema<string?>
 local optional_name = c.optional(c.string())
-local name1 = optional_name.parse('Alice')  -- ✓ 'Alice'
-local name2 = optional_name.parse(nil)      -- ✓ nil
+local name1 = optional_name:parse('Alice')  -- ✓ 'Alice'
+local name2 = optional_name:parse(nil)      -- ✓ nil
 
 -- Object with optional fields
 ---@type Schema<{name: string, nickname?: string, age?: integer}>
@@ -236,9 +237,9 @@ local user_schema = c.object({
   age = c.optional(c.integer())
 })
 
-local user1 = user_schema.parse({name = 'Alice'})  -- ✓
-local user2 = user_schema.parse({name = 'Bob', nickname = 'Bobby'})  -- ✓
-local user3 = user_schema.parse({name = 'Charlie', age = 25})        -- ✓
+local user1 = user_schema:parse({name = 'Alice'})  -- ✓
+local user2 = user_schema:parse({name = 'Bob', nickname = 'Bobby'})  -- ✓
+local user3 = user_schema:parse({name = 'Charlie', age = 25})        -- ✓
 ```
 
 ### Tuple Validation
@@ -252,7 +253,7 @@ local response_tuple = c.tuple({
   c.boolean()
 })
 
-local response = response_tuple.parse({'success', 200, true})
+local response = response_tuple:parse({'success', 200, true})
 print(response[1]) -- 'success'
 print(response[2]) -- 200
 print(response[3]) -- true
@@ -264,7 +265,7 @@ local coordinate = c.tuple({
   c.number()
 })
 
-local point = coordinate.parse({10.5, 20.3})
+local point = coordinate:parse({10.5, 20.3})
 local x, y = point[1], point[2]
 ```
 
@@ -274,12 +275,12 @@ local x, y = point[1], point[2]
 -- Any table
 ---@type Schema<table>
 local any_table = c.table()
-local data = any_table.parse({anything = 'goes', here = 123})
+local data = any_table:parse({anything = 'goes', here = 123})
 
 -- String to number mapping
 ---@type Schema<table<string, number>>
 local scores = c.table(c.string(), c.number())
-local student_scores = scores.parse({
+local student_scores = scores:parse({
   alice = 95,
   bob = 87,
   charlie = 92
@@ -288,7 +289,7 @@ local student_scores = scores.parse({
 -- String to string mapping
 ---@type Schema<table<string, string>>
 local config = c.table(c.string(), c.string())
-local settings = config.parse({
+local settings = config:parse({
   theme = 'dark',
   language = 'en',
   timezone = 'UTC'
@@ -301,8 +302,8 @@ local settings = config.parse({
 -- Single literal
 ---@type Schema<'production'>
 local env_schema = c.literal('production')
-local env = env_schema.parse('production')  -- ✓
--- env_schema.parse('development')          -- ✗ Error
+local env = env_schema:parse('production')  -- ✓
+-- env_schema:parse('development')          -- ✗ Error
 
 -- Multiple literals via union
 ---@alias HttpMethod 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -316,7 +317,7 @@ local method_schema = c.union({
 })
 
 ---@type HttpMethod
-local method = method_schema.parse('POST')
+local method = method_schema:parse('POST')
 
 -- Number literals
 ---@alias HttpStatusCode 200 | 404 | 500
@@ -329,7 +330,7 @@ local status_code = c.union({
 })
 
 ---@type HttpStatusCode
-local code = status_code.parse(404)
+local code = status_code:parse(404)
 ```
 
 ## Real-World Use Cases
@@ -580,6 +581,87 @@ local config, err = parse_with_defaults(
   {host = 'localhost', debug = false}
 )
 -- Result: {port = 8080, host = 'localhost', debug = false}
+```
+
+### Validation with ensure()
+
+The `:ensure()` method is a chotto.lua-specific feature (not in Zod) that validates data without returning a value. It's useful when you only need to validate but don't need the validated result.
+
+```lua
+local c = require('chotto')
+```
+
+#### Basic usage
+
+```lua
+-- No error is thrown, handler is called instead
+c.integer():ensure('not a number', function(err)
+  print('Validation failed:', err)
+end)
+
+-- The handler is optional.
+-- Without a handler, it behaves like :parse() but returns nothing.
+c.string():ensure('hello') -- ✓ No error, no return value
+c.string():ensure(123) -- ✗ Throws error
+```
+
+#### Real-world example
+
+```lua
+-- Contract Programming (Design by Contract pattern)
+
+---@generic T
+---@param schema chotto.Schema<T>
+local function ensure_argument(schema, validatee)
+  schema:ensure(validatee, function(e)
+    vim.notify('Validation failed: ' .. e, vim.log.levels.ERROR) -- A Neovim API to notify messages
+  end)
+end
+
+---@param num number
+local function print_number(num)
+  ensure_argument(c.number(), num)
+  print(num)
+end
+```
+
+```lua
+-- Configuration validation
+local function validate_config(config)
+  local config_schema = c.object({
+    port = c.integer(),
+    host = c.string(),
+    debug = c.boolean()
+  })
+
+  -- Ensure config is valid, throw error if not
+  config_schema:ensure(config)
+
+  -- If we reach here, config is valid
+  print('Configuration is valid!')
+end
+
+-- With custom error handling
+local function validate_config_safe(config)
+  local config_schema = c.object({
+    port = c.integer(),
+    host = c.string(),
+    debug = c.boolean()
+  })
+
+  local is_valid = true
+
+  config_schema:ensure(config, function(err)
+    print('Configuration error:', err)
+    is_valid = false
+  end)
+
+  return is_valid
+end
+
+-- Usage
+validate_config({port = 8080, host = 'localhost', debug = false})  -- ✓
+validate_config_safe({port = 'invalid', host = 'localhost'})       -- ✗ Calls handler, returns false
 ```
 
 ## Integration Examples
