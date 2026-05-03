@@ -36,24 +36,23 @@ function Schema:safe_parse(validatee)
   end)
 end
 
----Simular to `:parse()`, but no value returns, and throws an error if `validatee` is invalid.
----Also catches the error by `handle` if provided and an error is thrown.
+---Simular to `:parse()`, but error handled by `handle` if error is thrown and `handle` provided.
 ---@generic T
 ---@param self chotto.Schema<T>
 ---@param validatee unknown
----@param handle? fun(err: string)
----@return nil
+---@param handle? fun(err: string): T
+---@return T
 function Schema:ensure(validatee, handle)
-  if handle == nil then
-    self:parse(validatee)
-    return
+  local ok, result = self:safe_parse(validatee)
+  if ok then
+    return result
   end
 
-  local ok, result = self:safe_parse(validatee)
-  if not ok then
-    handle(result)
-    return
+  if handle ~= nil then
+    return handle(result)
   end
+
+  error(result)
 end
 
 ---A shorthand for `chotto.Validator`
