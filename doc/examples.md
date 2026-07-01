@@ -110,7 +110,7 @@ end
 -- User registration form
 ---@alias Registration { username: string, email: string, password: string, age?: integer, terms_accepted: boolean }
 
----Form validation helper
+--- Form validation helper
 ---@param form_data Registration
 ---@return Registration | nil, string | nil
 local function validate_form(form_data)
