@@ -47,7 +47,7 @@ local z = require('chotto')
 local result = z.string():parse('hello')
 ```
 
-See [Basic Usage](#️-basic-usage) and [Examples](doc/examples.md) for more details.
+See [Basic Usage](#️-basic-usage) and [API Reference](doc/api.md) for more details.
 
 ## 📦 Installation
 
@@ -136,7 +136,7 @@ c.string():ensure(123) -- ✗ Throws error
 
 ## 🏗️ Complex Schemas
 
-- All of API is described in [Examples](doc/examples.md)
+- All APIs are documented in [API Reference](doc/api.md)
 
 ### Type Annotation Requirements (for Complex Schemas)
 
@@ -266,7 +266,7 @@ local truth = truth_schema:parse(42)
 
 ### Others
 
-- Please see [Examples](doc/examples.md) for all APIs
+- Please see [API Reference](doc/api.md) for all APIs
 
 ## 🔄 Relationship to TypeScript Zod
 
@@ -304,7 +304,7 @@ chotto.lua is **strongly inspired** by **TypeScript Zod**, sharing similar:
 ## 📚 Documentation
 
 - **[Tutorial](doc/tutorial.md)** - Step-by-step guide and best practices
-- **[Examples](doc/examples.md)** - Practical examples and complete API reference
+- **[API Reference](doc/api.md)** - Comprehensive API documentation with practical examples
 - **[Zod Comparison](doc/zod-comparison.md)** - Detailed comparison with TypeScript Zod
 
 ## 🤝 Contributing

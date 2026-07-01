@@ -1,6 +1,6 @@
-# chotto.lua Examples & API Reference
+# chotto.lua API Reference
 
-Comprehensive examples and complete API documentation for chotto.lua.
+Comprehensive API documentation for chotto.lua, with practical usage examples.
 
 ## Table of Contents
 
