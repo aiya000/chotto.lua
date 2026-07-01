@@ -441,29 +441,7 @@ local user_list_schema = chotto.object({
 })
 ```
 
-### 4. Validation Helper Functions
-
-```lua
--- Create utility functions for common patterns
-local function safe_parse(schema, data)
-  local ok, result = schema:safe_parse(data)
-  if ok == true then
-    return result, nil
-  end
-  return nil, result
-end
-
--- Usage
-local user, err = safe_parse(user_schema, user_data)
-if err then
-  print("Validation error:", err)
-  return
-end
-
-print("Valid user:", user.name)
-```
-
-### 5. Error Context
+### 4. Error Context
 
 ```lua
 -- Add context to your validation
