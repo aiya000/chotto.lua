@@ -172,14 +172,13 @@ local status_schema = chotto.union({
 |---------|-----|------------|------------|
 | **Method chaining** | `z.string().optional()` | `chotto.optional(chotto.string())` | Function composition vs methods |
 | **Type inference** | Automatic | Manual luaCATS annotations | Language limitation |
-| **Error handling** | Try/catch or `.safeParse()` | `pcall()` | Language convention |
+| **Error handling** | Try/catch or `.safeParse()` | `:safe_parse()` or `pcall()` | `:safe_parse()` is the recommended equivalent; `pcall()` available for finer control |
 | **Reserved words** | `z.function()`, `z.null()` | `chotto.func()`, `chotto.null()` | Lua keyword conflicts |
 
 ### ❌ Zod Features Not Available in chotto.lua
 
 | Feature | Why Not Available |
 |---------|-------------------|
-| **`.safeParse()`** | Use `pcall()` instead (Lua convention) |
 | **`.refine()`** | Not implemented yet |
 | **`.transform()`** | Not implemented yet |
 | **`.default()`** | Not implemented yet |
@@ -411,7 +410,7 @@ end
 - [ ] Replace `z.` with `chotto.`
 - [ ] Add manual type annotations with `---@type Schema<...>`
 - [ ] Convert method chains to function composition
-- [ ] Replace `.safeParse()` with `pcall()` or helper functions
+- [ ] Replace `.safeParse()` with `:safe_parse()` (or `pcall()` for lower-level control)
 - [ ] Change `z.function()` to `chotto.func()`
 - [ ] Change `z.null()` to `chotto.null()`
 - [ ] Remove unsupported validations (`.email()`, `.min()`, etc.)

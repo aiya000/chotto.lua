@@ -108,7 +108,7 @@ local string_or_number = chotto.union({
 
 ## Error Handling
 
-chotto.lua uses Lua's error throwing mechanism. Always use `pcall()` for safe validation.
+chotto.lua uses Lua's error throwing mechanism. Use `:safe_parse()` for safe validation (recommended), or `pcall(function() return schema:parse(...) end)` when you need finer control.
 
 ### Basic Error Handling
 
@@ -118,8 +118,8 @@ local schema = chotto.integer()
 -- Direct parsing (throws on error)
 local result = schema:parse(42) -- Works fine
 
--- Safe parsing with pcall
-local ok, result = pcall(function() return schema:parse("not a number") end)
+-- Safe parsing with safe_parse
+local ok, result = schema:safe_parse("not a number")
 if ok then
   print("Valid:", result)
 else
@@ -138,7 +138,7 @@ local user_schema = chotto.object({
 
 -- Safe validation function
 local function validate_user(data)
-  local ok, result = pcall(function() return user_schema:parse(data) end)
+  local ok, result = user_schema:safe_parse(data)
   if ok then
     return result, nil
   else
@@ -407,11 +407,11 @@ local user_schema = chotto.object({
 })
 ```
 
-### 2. Use pcall() for All Validation
+### 2. Use :safe_parse() for All Validation
 
 ```lua
 -- ✅ Good - safe validation
-local ok, result = pcall(function() return schema:parse(data) end)
+local ok, result = schema:safe_parse(data)
 if ok then
   -- use result
 else
