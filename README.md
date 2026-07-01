@@ -143,7 +143,7 @@ c.string():ensure(123) -- ✗ Throws error
 For the complex schemas, due to luaCATS limitations, explicit type annotations must append.
 Or maybe your variables type inferred to `unknown`.
 
-Append explicit type annotations using `---@type Schema<YourType>` to both schema and parsed result.
+Append explicit type annotations using `---@type chotto.Schema<YourType>` to both schema and parsed result.
 
 Example:
 (See below 'Objects' section for usage of object schema.)
@@ -153,7 +153,7 @@ Example:
 ```lua
 ---@alias User {name: string, age: integer}
 
----@type Schema<User>
+---@type chotto.Schema<User>
 local user_schema = c.object({
   name = c.string(),
   age = c.integer(),
@@ -186,7 +186,7 @@ local user = user_schema:parse({
 ```lua
 ---@alias User {name: string, age: integer}
 
----@type Schema<User>
+---@type chotto.Schema<User>
 local user_schema = c.object({
   name = c.string(),
   age = c.integer(),
@@ -203,7 +203,7 @@ local user = user_schema:parse({
 ### Arrays
 
 ```lua
----@type Schema<string[]>
+---@type chotto.Schema<string[]>
 local string_array_schema = c.array(c.string())
 
 ---@type string[]
@@ -215,7 +215,7 @@ local items = string_array_schema:parse({'a', 'b', 'c'})
 ### Unions
 
 ```lua
----@type Schema<string | number>
+---@type chotto.Schema<string | number>
 local string_or_number_schema = c.union({
   c.string(),
   c.number()
@@ -232,7 +232,7 @@ local ten = string_or_number_schema:parse(10)
 ### Tuples
 
 ```lua
----@type Schema<[string, number, boolean]>
+---@type chotto.Schema<[string, number, boolean]>
 local tuple_schema = c.tuple({
   c.string(),
   c.number(),
@@ -243,7 +243,7 @@ local tuple_schema = c.tuple({
 ### Optional
 
 ```lua
----@type Schema<{name: string, age?: integer}>
+---@type chotto.Schema<{name: string, age?: integer}>
 local person_schema = c.object({
   name = c.string(),
   age = c.optional(c.integer()),
@@ -253,12 +253,12 @@ local person_schema = c.object({
 ### Literals
 
 ```lua
----@type Schema<'success'>
+---@type chotto.Schema<'success'>
 local success_schema = c.literal('success')
 ---@type 'success'
 local success = success_schema:parse('success')
 
----@type Schema<42>
+---@type chotto.Schema<42>
 local truth_schema = c.literal(42)
 ---@type 42
 local truth = truth_schema:parse(42)

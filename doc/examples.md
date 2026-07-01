@@ -108,7 +108,7 @@ local table = flexible_schema:parse({})            -- ✓ {}
 
 ```lua
 -- Basic object
----@type Schema<{name: string, age: integer}>
+---@type chotto.Schema<{name: string, age: integer}>
 local person_schema = c.object({
   name = c.string(),
   age = c.integer(),
@@ -124,7 +124,7 @@ print(person.name)  -- 'Bob'
 print(person.extra) -- 'field'
 
 -- Nested objects
----@type Schema<{user: {name: string, email: string}, settings: {theme: string}}>
+---@type chotto.Schema<{user: {name: string, email: string}, settings: {theme: string}}>
 local profile_schema = c.object({
   user = c.object({
     name = c.string(),
@@ -150,17 +150,17 @@ local profile = profile_schema:parse({
 
 ```lua
 -- String array
----@type Schema<string[]>
+---@type chotto.Schema<string[]>
 local tags_schema = c.array(c.string())
 local tags = tags_schema:parse({'lua', 'validation', 'library'})
 
 -- Number array
----@type Schema<number[]>
+---@type chotto.Schema<number[]>
 local scores_schema = c.array(c.number())
 local scores = scores_schema:parse({95.5, 87, 92.3})
 
 -- Object array
----@type Schema<{name: string, age: integer}[]>
+---@type chotto.Schema<{name: string, age: integer}[]>
 local users_schema = c.array(c.object({
   name = c.string(),
   age = c.integer(),
@@ -172,7 +172,7 @@ local users = users_schema:parse({
 })
 
 -- Nested arrays
----@type Schema<string[][]>
+---@type chotto.Schema<string[][]>
 local matrix_schema = c.array(c.array(c.string()))
 local matrix = matrix_schema:parse({
   {'a', 'b', 'c'},
@@ -184,7 +184,7 @@ local matrix = matrix_schema:parse({
 
 ```lua
 -- String or number
----@type Schema<string | number>
+---@type chotto.Schema<string | number>
 local id_schema = c.union({
   c.string(),
   c.number()
@@ -194,7 +194,7 @@ local id1 = id_schema:parse('user123')  -- ✓ string
 local id2 = id_schema:parse(42)         -- ✓ number
 
 -- Status enum
----@type Schema<'pending' | 'success' | 'error'>
+---@type chotto.Schema<'pending' | 'success' | 'error'>
 local status_schema = c.union({
   c.literal('pending'),
   c.literal('success'),
@@ -204,7 +204,7 @@ local status_schema = c.union({
 local status = status_schema:parse('success') -- ✓
 
 -- Complex union
----@type Schema<string | {type: 'object', data: table}>
+---@type chotto.Schema<string | {type: 'object', data: table}>
 local flexible_data = c.union({
   c.string(),
   c.object({
@@ -224,13 +224,13 @@ local data2 = flexible_data:parse({
 
 ```lua
 -- Optional string
----@type Schema<string?>
+---@type chotto.Schema<string?>
 local optional_name = c.optional(c.string())
 local name1 = optional_name:parse('Alice')  -- ✓ 'Alice'
 local name2 = optional_name:parse(nil)      -- ✓ nil
 
 -- Object with optional fields
----@type Schema<{name: string, nickname?: string, age?: integer}>
+---@type chotto.Schema<{name: string, nickname?: string, age?: integer}>
 local user_schema = c.object({
   name = c.string(),
   nickname = c.optional(c.string()),
@@ -246,7 +246,7 @@ local user3 = user_schema:parse({name = 'Charlie', age = 25})        -- ✓
 
 ```lua
 -- Fixed-length array with different types
----@type Schema<[string, number, boolean]>
+---@type chotto.Schema<[string, number, boolean]>
 local response_tuple = c.tuple({
   c.string(),
   c.number(),
@@ -259,7 +259,7 @@ print(response[2]) -- 200
 print(response[3]) -- true
 
 -- Coordinate tuple
----@type Schema<[number, number]>
+---@type chotto.Schema<[number, number]>
 local coordinate = c.tuple({
   c.number(),
   c.number()
@@ -273,12 +273,12 @@ local x, y = point[1], point[2]
 
 ```lua
 -- Any table
----@type Schema<table>
+---@type chotto.Schema<table>
 local any_table = c.table()
 local data = any_table:parse({anything = 'goes', here = 123})
 
 -- String to number mapping
----@type Schema<table<string, number>>
+---@type chotto.Schema<table<string, number>>
 local scores = c.table(c.string(), c.number())
 local student_scores = scores:parse({
   alice = 95,
@@ -287,7 +287,7 @@ local student_scores = scores:parse({
 })
 
 -- String to string mapping
----@type Schema<table<string, string>>
+---@type chotto.Schema<table<string, string>>
 local config = c.table(c.string(), c.string())
 local settings = config:parse({
   theme = 'dark',
@@ -300,7 +300,7 @@ local settings = config:parse({
 
 ```lua
 -- Single literal
----@type Schema<'production'>
+---@type chotto.Schema<'production'>
 local env_schema = c.literal('production')
 local env = env_schema:parse('production')  -- ✓
 -- env_schema:parse('development')          -- ✗ Error
@@ -308,7 +308,7 @@ local env = env_schema:parse('production')  -- ✓
 -- Multiple literals via union
 ---@alias HttpMethod 'GET' | 'POST' | 'PUT' | 'DELETE'
 
----@type Schema<HttpMethod>
+---@type chotto.Schema<HttpMethod>
 local method_schema = c.union({
   c.literal('GET'),
   c.literal('POST'),
@@ -322,7 +322,7 @@ local method = method_schema:parse('POST')
 -- Number literals
 ---@alias HttpStatusCode 200 | 404 | 500
 
----@type Schema<HttpStatusCode>
+---@type chotto.Schema<HttpStatusCode>
 local status_code = c.union({
   c.literal(200),
   c.literal(404),
@@ -339,7 +339,7 @@ local code = status_code:parse(404)
 
 ```lua
 -- API request validation
----@type Schema<{method: 'GET' | 'POST', url: string, headers?: table<string, string>, body?: string}>
+---@type chotto.Schema<{method: 'GET' | 'POST', url: string, headers?: table<string, string>, body?: string}>
 local api_request = c.object({
   method = c.union({
     c.literal('GET'),
@@ -351,7 +351,7 @@ local api_request = c.object({
 })
 
 -- API response validation
----@type Schema<{status: integer, data?: table, error?: string}>
+---@type chotto.Schema<{status: integer, data?: table, error?: string}>
 local api_response = c.object({
   status = c.integer(),
   data = c.optional(c.table()),
@@ -383,7 +383,7 @@ end
 
 ```lua
 -- Database configuration
----@type Schema<{host: string, port: integer, username: string, password: string, database: string}>
+---@type chotto.Schema<{host: string, port: integer, username: string, password: string, database: string}>
 local db_config = c.object({
   host = c.string(),
   port = c.integer(),
@@ -393,7 +393,7 @@ local db_config = c.object({
 })
 
 -- Logging configuration
----@type Schema<{level: 'debug' | 'info' | 'warn' | 'error', file?: string, console: boolean}>
+---@type chotto.Schema<{level: 'debug' | 'info' | 'warn' | 'error', file?: string, console: boolean}>
 local log_config = c.object({
   level = c.union({
     c.literal('debug'),
@@ -406,7 +406,7 @@ local log_config = c.object({
 })
 
 -- Full application configuration
----@type Schema<{database: {host: string, port: integer, username: string, password: string, database: string}, logging: {level: 'debug' | 'info' | 'warn' | 'error', file?: string, console: boolean}, server: {port: integer, host?: string}}>
+---@type chotto.Schema<{database: {host: string, port: integer, username: string, password: string, database: string}, logging: {level: 'debug' | 'info' | 'warn' | 'error', file?: string, console: boolean}, server: {port: integer, host?: string}}>
 local app_config = c.object({
   database = db_config,
   logging = log_config,
@@ -439,7 +439,7 @@ end
 ---@param form_data Registration
 ---@return Registration | nil, string | nil
 local function validate_form(form_data)
-  ---@type Schema<Registration>
+  ---@type chotto.Schema<Registration>
   local registration_schema = c.object({
     username = c.string(),
     email = c.string(),
@@ -481,7 +481,7 @@ end
 
 -- Player data
 ---@alias Player {name: string, level: integer, health: number, inventory: string[], position: [number, number]}
----@type Schema<Player>
+---@type chotto.Schema<Player>
 local player_schema = c.object({
   name = c.string(),
   level = c.integer(),
@@ -497,7 +497,7 @@ local player_schema = c.object({
 ---@alias GameState {players: Player[], status: 'waiting' | 'playing' | 'finished', round: integer}
 
 ---**Nested Schema**
----@type Schema<GameState>
+---@type chotto.Schema<GameState>
 local game_state = c.object({
   players = c.array(player_schema), -- Reuse player_schema
   status = c.union({
@@ -684,7 +684,7 @@ local function validate_middleware(schema)
 end
 
 -- Route with validation
----@type Schema<{name: string, email: string}>
+---@type chotto.Schema<{name: string, email: string}>
 local create_user_schema = c.object({
   name = c.string(),
   email = c.string()
@@ -702,7 +702,7 @@ end)
 
 ```lua
 -- Command line argument validation
----@type Schema<{command: 'start' | 'stop' | 'restart', port?: integer, config?: string}>
+---@type chotto.Schema<{command: 'start' | 'stop' | 'restart', port?: integer, config?: string}>
 local cli_args = c.object({
   command = c.union({
     c.literal('start'),
