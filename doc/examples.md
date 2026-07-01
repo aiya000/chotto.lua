@@ -260,10 +260,6 @@ local config, err = parse_with_defaults(
 
 The `:ensure()` method is a chotto.lua-specific feature (not in Zod) that validates data without returning a value. It's useful when you only need to validate but don't need the validated result.
 
-```lua
-local c = require('chotto')
-```
-
 #### Basic usage
 
 ```lua
