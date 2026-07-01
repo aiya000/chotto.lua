@@ -221,7 +221,7 @@ local user_schema = chotto.object({
   age = chotto.number()
 })
 
-local user = user_schema.parse(data) -- user is typed based on annotation
+local user = user_schema:parse(data) -- user is typed based on annotation
 ```
 
 ### luaCATS Limitations
@@ -235,7 +235,7 @@ local schema = chotto.object({
   name = chotto.string(),
   age = chotto.number()
 })
--- Lua LSP doesn't know what type schema.parse() returns
+-- Lua LSP doesn't know what type schema:parse() returns
 
 -- With annotation - type information is preserved
 ---@type Schema<{name: string, age: number}>
@@ -243,7 +243,7 @@ local schema = chotto.object({
   name = chotto.string(),
   age = chotto.number()
 })
--- Lua LSP knows schema.parse() returns {name: string, age: number}
+-- Lua LSP knows schema:parse() returns {name: string, age: number}
 ```
 
 ## Error Handling
@@ -281,8 +281,11 @@ end
 
 -- Method 2: Helper function (similar to safeParse)
 local function safe_parse(schema, data)
-  local ok, result = pcall(function() return schema:parse(data) end)
-  return ok and result or nil, not ok and result or nil
+  local ok, result = schema:safe_parse(data)
+  if ok then
+    return result, nil
+  end
+  return nil, result
 end
 
 local user, err = safe_parse(user_schema, data)

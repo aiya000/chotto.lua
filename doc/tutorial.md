@@ -24,7 +24,7 @@ local chotto = require('chotto')
 local name_schema = chotto.string()
 
 -- Validate data
-local result = name_schema.parse("Alice") -- Returns "Alice"
+local result = name_schema:parse("Alice") -- Returns "Alice"
 ```
 
 ## Basic Types
@@ -59,14 +59,14 @@ local unknown_schema = chotto.unknown() -- Same as any, but semantically "unknow
 
 ```lua
 -- Valid cases
-print(int_schema.parse(42))        -- 42
-print(str_schema.parse("hello"))   -- "hello"
-print(bool_schema.parse(true))     -- true
-print(nil_schema.parse(nil))       -- nil
+print(int_schema:parse(42))        -- 42
+print(str_schema:parse("hello"))   -- "hello"
+print(bool_schema:parse(true))     -- true
+print(nil_schema:parse(nil))       -- nil
 
 -- Invalid cases (will throw errors)
--- int_schema.parse(3.14)          -- Error: Expected integer
--- str_schema.parse(42)            -- Error: Expected string
+-- int_schema:parse(3.14)          -- Error: Expected integer
+-- str_schema:parse(42)            -- Error: Expected string
 ```
 
 ## Type Annotations
@@ -116,7 +116,7 @@ chotto.lua uses Lua's error throwing mechanism. Always use `pcall()` for safe va
 local schema = chotto.integer()
 
 -- Direct parsing (throws on error)
-local result = schema.parse(42) -- Works fine
+local result = schema:parse(42) -- Works fine
 
 -- Safe parsing with pcall
 local ok, result = pcall(function() return schema:parse("not a number") end)
@@ -173,7 +173,7 @@ local user_schema = chotto.object({
 })
 
 -- Valid object
-local user = user_schema.parse({
+local user = user_schema:parse({
   name = "Bob",
   age = 30,
   active = true,
@@ -192,14 +192,14 @@ Arrays validate sequences of the same type:
 ---@type Schema<integer[]>
 local number_list = chotto.array(chotto.integer())
 
-local numbers = number_list.parse({1, 2, 3, 4, 5})
+local numbers = number_list:parse({1, 2, 3, 4, 5})
 print(numbers[1]) -- 1
 
 -- Nested arrays
 ---@type Schema<string[][]>
 local string_matrix = chotto.array(chotto.array(chotto.string()))
 
-local matrix = string_matrix.parse({
+local matrix = string_matrix:parse({
   {"a", "b"},
   {"c", "d"}
 })
@@ -217,8 +217,8 @@ local person_schema = chotto.object({
 })
 
 -- Both are valid
-local person1 = person_schema.parse({ name = "Alice" })
-local person2 = person_schema.parse({ name = "Bob", nickname = "Bobby" })
+local person1 = person_schema:parse({ name = "Alice" })
+local person2 = person_schema:parse({ name = "Bob", nickname = "Bobby" })
 ```
 
 ### Union Types
@@ -234,9 +234,9 @@ local flexible_schema = chotto.union({
 })
 
 -- All of these work
-local val1 = flexible_schema.parse("hello")
-local val2 = flexible_schema.parse(42)
-local val3 = flexible_schema.parse(true)
+local val1 = flexible_schema:parse("hello")
+local val2 = flexible_schema:parse(42)
+local val3 = flexible_schema:parse(true)
 ```
 
 ### Tuples
@@ -251,7 +251,7 @@ local tuple_schema = chotto.tuple({
   chotto.boolean()
 })
 
-local data = tuple_schema.parse({"hello", 42, true})
+local data = tuple_schema:parse({"hello", 42, true})
 print(data[1]) -- "hello"
 print(data[2]) -- 42
 print(data[3]) -- true
@@ -272,8 +272,8 @@ local status_schema = chotto.union({
   chotto.literal("failed")
 })
 
-local status = status_schema.parse("completed") -- Works
--- status_schema.parse("invalid")               -- Error
+local status = status_schema:parse("completed") -- Works
+-- status_schema:parse("invalid")               -- Error
 ```
 
 ### Table Types
@@ -289,7 +289,7 @@ local any_table = chotto.table()
 ---@type Schema<table<string, number>>
 local string_to_number = chotto.table(chotto.string(), chotto.number())
 
-local scores = string_to_number.parse({
+local scores = string_to_number:parse({
   alice = 95,
   bob = 87,
   charlie = 92
@@ -313,7 +313,7 @@ local app_config = chotto.object({
   })
 })
 
-local config = app_config.parse({
+local config = app_config:parse({
   user = {
     name = "Alice",
     email = "alice@example.com"
@@ -419,7 +419,7 @@ else
 end
 
 -- ❌ Bad - can crash your program
-local result = schema.parse(data) -- throws on invalid data
+local result = schema:parse(data) -- throws on invalid data
 ```
 
 ### 3. Create Reusable Schemas
@@ -446,8 +446,11 @@ local user_list_schema = chotto.object({
 ```lua
 -- Create utility functions for common patterns
 local function safe_parse(schema, data)
-  local ok, result = pcall(function() return schema:parse(data) end)
-  return ok and result or nil, not ok and result or nil
+  local ok, result = schema:safe_parse(data)
+  if ok then
+    return result, nil
+  end
+  return nil, result
 end
 
 -- Usage
