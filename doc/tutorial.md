@@ -340,9 +340,9 @@ local api_response = chotto.object({
 
 -- Validate API responses safely
 local function handle_api_response(raw_response)
-  local response, err = pcall(api_response.parse, raw_response)
-  if err then
-    print("Invalid API response:", err)
+  local ok, response = pcall(api_response.parse, raw_response)
+  if not ok then
+    print("Invalid API response:", response)
     return nil
   end
 
@@ -379,9 +379,9 @@ local config_schema = chotto.object({
 local function load_config(config_file)
   local raw_config = dofile(config_file) -- or JSON.decode(), etc.
 
-  local config, err = pcall(config_schema.parse, raw_config)
-  if err then
-    error("Configuration validation failed: " .. err)
+  local ok, config = pcall(config_schema.parse, raw_config)
+  if not ok then
+    error("Configuration validation failed: " .. config)
   end
 
   return config
@@ -465,9 +465,9 @@ print("Valid user:", user.name)
 ```lua
 -- Add context to your validation
 local function validate_user_registration(data)
-  local user, err = pcall(user_schema.parse, data)
-  if err then
-    return nil, "User registration validation failed: " .. err
+  local ok, user = pcall(user_schema.parse, data)
+  if not ok then
+    return nil, "User registration validation failed: " .. user
   end
   return user, nil
 end

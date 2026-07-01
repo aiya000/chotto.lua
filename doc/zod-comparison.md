@@ -349,11 +349,11 @@ if (result.success) {
 
 **After (chotto.lua):**
 ```lua
-local user, err = pcall(user_schema.parse, data)
-if not err then
-  -- Use user
+local ok, result = pcall(user_schema.parse, data)
+if ok then
+  -- Use result
 else
-  -- Handle err (error message)
+  -- Handle result (error message)
 end
 
 -- Or using helper function
@@ -437,11 +437,11 @@ local user_schema = chotto.object({...}) -- Create once, reuse many times
 -- Use pcall efficiently
 local function validate_many_users(users)
   for i, user_data in ipairs(users) do
-    local user, err = pcall(user_schema.parse, user_data)
-    if err then
-      return nil, "User " .. i .. " invalid: " .. err
+    local ok, parsed_user = pcall(user_schema.parse, user_data)
+    if not ok then
+      return nil, "User " .. i .. " invalid: " .. parsed_user
     end
-    users[i] = user
+    users[i] = parsed_user
   end
   return users
 end
