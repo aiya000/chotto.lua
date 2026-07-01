@@ -304,7 +304,8 @@ chotto.lua is **strongly inspired** by **TypeScript Zod**, sharing similar:
 ## 📚 Documentation
 
 - **[Tutorial](doc/tutorial.md)** - Step-by-step guide and best practices
-- **[API Reference](doc/api.md)** - Comprehensive API documentation with practical examples
+- **[API Reference](doc/api.md)** - Complete API documentation
+- **[Examples](doc/examples.md)** - Practical usage examples
 - **[Zod Comparison](doc/zod-comparison.md)** - Detailed comparison with TypeScript Zod
 
 ## 🤝 Contributing
