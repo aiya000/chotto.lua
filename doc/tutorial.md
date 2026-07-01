@@ -447,7 +447,7 @@ local user_list_schema = chotto.object({
 -- Create utility functions for common patterns
 local function safe_parse(schema, data)
   local ok, result = schema:safe_parse(data)
-  if ok then
+  if ok == true then
     return result, nil
   end
   return nil, result

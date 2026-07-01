@@ -282,7 +282,7 @@ end
 -- Method 2: Helper function (similar to safeParse)
 local function safe_parse(schema, data)
   local ok, result = schema:safe_parse(data)
-  if ok then
+  if ok == true then
     return result, nil
   end
   return nil, result
@@ -362,7 +362,7 @@ end
 -- Or using helper function
 local function safe_parse(schema, data)
   local ok, result = schema:safe_parse(data)
-  if ok then
+  if ok == true then
     return result, nil
   end
   return nil, result
