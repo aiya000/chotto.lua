@@ -56,20 +56,7 @@ function Schema:ensure(validatee, handle)
   end
 end
 
----A shorthand for `chotto.Validator`
----@see chotto.Validator
----@generic T
----@alias Validator<T> fun(x: unknown): T
-
----A shorthand for `chotto.Schema`
----@see chotto.Schema
----@generic T
----@alias Schema<T> chotto.Schema<T>
-
--- TODO: Add proof to ensure chotto.SomeType and SomeType are identical like
--- const _proof: Equals<chotto.SomeType, SomeType> = true
-
----@type Validator<integer>
+---@type chotto.Validator<integer>
 local function is_integer(x)
   if type(x) == 'number' and math.floor(x) == x then
     return x
@@ -77,12 +64,12 @@ local function is_integer(x)
   error('Expected integer, got: ' .. tostring(x))
 end
 
----@return Schema<integer>
+---@return chotto.Schema<integer>
 function M.integer()
   return setmetatable({ parse_raw = is_integer }, Schema)
 end
 
----@type Validator<number>
+---@type chotto.Validator<number>
 local function is_number(x)
   if type(x) == 'number' then
     return x
@@ -90,12 +77,12 @@ local function is_number(x)
   error('Expected number, got: ' .. tostring(x))
 end
 
----@return Schema<number>
+---@return chotto.Schema<number>
 function M.number()
   return setmetatable({ parse_raw = is_number }, Schema)
 end
 
----@type Validator<string>
+---@type chotto.Validator<string>
 local function is_string(x)
   if type(x) == 'string' then
     return x
@@ -103,12 +90,12 @@ local function is_string(x)
   error('Expected string, got: ' .. tostring(x))
 end
 
----@return Schema<string>
+---@return chotto.Schema<string>
 function M.string()
   return setmetatable({ parse_raw = is_string }, Schema)
 end
 
----@type Validator<boolean>
+---@type chotto.Validator<boolean>
 local function is_boolean(x)
   if type(x) == 'boolean' then
     return x
@@ -116,12 +103,12 @@ local function is_boolean(x)
   error('Expected boolean, got: ' .. tostring(x))
 end
 
----@return Schema<boolean>
+---@return chotto.Schema<boolean>
 function M.boolean()
   return setmetatable({ parse_raw = is_boolean }, Schema)
 end
 
----@type Validator<nil>
+---@type chotto.Validator<nil>
 local function is_nil(x)
   if x == nil then
     return nil
@@ -129,32 +116,32 @@ local function is_nil(x)
   error('Expected nil, got: ' .. tostring(x))
 end
 
----@return Schema<nil>
+---@return chotto.Schema<nil>
 function M.null()
   return setmetatable({ parse_raw = is_nil }, Schema)
 end
 
----@type Validator<any>
+---@type chotto.Validator<any>
 local function is_any(x)
   return x
 end
 
----@return Schema<any>
+---@return chotto.Schema<any>
 function M.any()
   return setmetatable({ parse_raw = is_any }, Schema)
 end
 
----@type Validator<unknown>
+---@type chotto.Validator<unknown>
 local function is_unknown(x)
   return x
 end
 
----@return Schema<unknown>
+---@return chotto.Schema<unknown>
 function M.unknown()
   return setmetatable({ parse_raw = is_unknown }, Schema)
 end
 
----@type Validator<function>
+---@type chotto.Validator<function>
 local function is_func(x)
   if type(x) == 'function' then
     return x
@@ -162,22 +149,22 @@ local function is_func(x)
   error('Expected function, got: ' .. type(x))
 end
 
----@return Schema<function>
+---@return chotto.Schema<function>
 function M.func()
   return setmetatable({ parse_raw = is_func }, Schema)
 end
 
 ---Creates an object schema. The return type should be explicitly annotated.
 ---```lua
-------@type Schema<{a: integer, b: string}>
+------@type chotto.Schema<{a: integer, b: string}>
 ---local schema = M.object({
 ---  a = M.integer(),
 ---  b = M.string(),
 ---})
 ---```
----@generic T : table<string, Schema<unknown>>
+---@generic T : table<string, chotto.Schema<unknown>>
 ---@param raw_schema T
----@return Schema<T>
+---@return chotto.Schema<T>
 function M.object(raw_schema)
   ---@param obj unknown
   ---@return unknown
@@ -212,12 +199,12 @@ end
 
 ---Creates an array schema. The return type should be explicitly annotated.
 ---```lua
-------@type Schema<integer[]>
+------@type chotto.Schema<integer[]>
 ---local schema = M.array(M.integer())
 ---```
 ---@generic T
----@param item_schema Schema<T>
----@return Schema<T[]>
+---@param item_schema chotto.Schema<T>
+---@return chotto.Schema<T[]>
 function M.array(item_schema)
   ---@param arr unknown
   ---@return unknown
@@ -240,12 +227,12 @@ end
 
 ---Creates an optional schema that accepts nil.
 ---```lua
-------@type Schema<integer?>
+------@type chotto.Schema<integer?>
 ---local schema = M.optional(M.integer())
 ---```
 ---@generic T
----@param schema Schema<T>
----@return Schema<T | nil>
+---@param schema chotto.Schema<T>
+---@return chotto.Schema<T | nil>
 function M.optional(schema)
   ---@param x unknown
   ---@return unknown
@@ -261,17 +248,17 @@ end
 
 ---Creates a union schema that accepts multiple types. Type annotation required.
 ---```lua
-------@type Schema<string | number>
+------@type chotto.Schema<string | number>
 ---local schema = M.union({ M.string(), M.number() })
 ---```
 ---Due to luaCATS limitation, we can't represent union of types directly
----@generic Schemas : Schema<unknown>[]
+---@generic Schemas : chotto.Schema<unknown>[]
 ---@param schemas Schemas
----@return Schema<unknown[]>
+---@return chotto.Schema<unknown[]>
 ----- NOTE: The below annotation is the ideal form
------ @generic Schemas : Schema<unknown>[]
+----- @generic Schemas : chotto.Schema<unknown>[]
 ----- @param schemas Schemas
------ @return Schema<Schemas[number]>
+----- @return chotto.Schema<Schemas[number]>
 function M.union(schemas)
   ---@param x unknown
   ---@return unknown
@@ -295,17 +282,17 @@ end
 
 ---Creates a tuple schema for fixed-length arrays. Type annotation required.
 ---```lua
-------@type Schema<[string, number, boolean]>
+------@type chotto.Schema<[string, number, boolean]>
 ---local schema = M.tuple({ M.string(), M.number(), M.boolean() })
 ---```
 -----Due to luaCATS limitation, we can't represent tuple of types directly
----@generic Schemas : Schema<unknown>[]
+---@generic Schemas : chotto.Schema<unknown>[]
 ---@param schemas Schemas
----@return Schema<unknown[]>
+---@return chotto.Schema<unknown[]>
 ----- NOTE: The below annotation is the ideal form
------ @generic Schemas : [...Schema<unknown>[]]
+----- @generic Schemas : [...chotto.Schema<unknown>[]]
 ----- @param schemas Schemas
------ @return Schema<Schemas>
+----- @return chotto.Schema<Schemas>
 function M.tuple(schemas)
   ---@param x unknown
   ---@return unknown
@@ -339,16 +326,16 @@ end
 
 ---Creates a table schema. Can be used for general tables or typed key-value pairs.
 ---```lua
-------@type Schema<table>
+------@type chotto.Schema<table>
 ---local any_table = M.table()
 ---
-------@type Schema<table<string, number>>
+------@type chotto.Schema<table<string, number>>
 ---local string_to_number = M.table(M.string(), M.number())
 ---```
 ---@generic K, V
----@param key_schema? Schema<K>
----@param value_schema? Schema<V>
----@return Schema<table<K, V>>
+---@param key_schema? chotto.Schema<K>
+---@param value_schema? chotto.Schema<V>
+---@return chotto.Schema<table<K, V>>
 function M.table(key_schema, value_schema)
   ---@param x unknown
   ---@return unknown
@@ -378,12 +365,12 @@ end
 
 ---Creates a literal schema that only accepts a specific value.
 ---```lua
-------@type Schema<"success">
+------@type chotto.Schema<"success">
 ---local success_schema = M.literal("success")
 ---```
 ---@generic T
 ---@param literal T
----@return Schema<T>
+---@return chotto.Schema<T>
 function M.literal(literal)
   ---@param x unknown
   ---@return unknown
