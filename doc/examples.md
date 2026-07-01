@@ -2,6 +2,8 @@
 
 Practical usage examples for chotto.lua.
 
+All examples assume `local c = require('chotto')` at the top of your file.
+
 ## Table of Contents
 
 1. [Real-World Use Cases](#real-world-use-cases)
@@ -36,18 +38,18 @@ local api_response = c.object({
 -- Usage function
 local function make_api_call(request_data)
   -- Validate request
-  local request, err = pcall(api_request.parse, request_data)
-  if err then
-    return nil, 'Invalid request: ' .. err
+  local ok, request = pcall(api_request.parse, api_request, request_data)
+  if not ok then
+    return nil, 'Invalid request: ' .. request
   end
 
   -- Make the actual call (pseudo-code)
   local raw_response = http.request(request)
 
   -- Validate response
-  local response, err2 = pcall(api_response.parse, raw_response)
-  if err2 then
-    return nil, 'Invalid response: ' .. err2
+  local ok2, response = pcall(api_response.parse, api_response, raw_response)
+  if not ok2 then
+    return nil, 'Invalid response: ' .. response
   end
 
   return response, nil
@@ -95,9 +97,9 @@ local app_config = c.object({
 local function load_config(config_path)
   local config_data = dofile(config_path) -- or JSON.decode() etc.
 
-  local config, err = pcall(app_config.parse, config_data)
-  if err then
-    error('Configuration validation failed: ' .. err)
+  local ok, config = pcall(app_config.parse, app_config, config_data)
+  if not ok then
+    error('Configuration validation failed: ' .. config)
   end
 
   return config
@@ -123,9 +125,9 @@ local function validate_form(form_data)
     terms_accepted = c.boolean()
   })
 
-  local result, err = pcall(registration_schema.parse, form_data)
-  if err then
-    return nil, 'Validation failed: ' .. err
+  local ok, result = pcall(registration_schema.parse, registration_schema, form_data)
+  if not ok then
+    return nil, 'Validation failed: ' .. result
   end
   return result, nil
 end
@@ -187,9 +189,9 @@ local game_state = c.object({
 ---@param state GameState
 ---@return boolean, string | nil
 local function save_game(state)
-  local validated_state, err = pcall(game_state.parse, state)
-  if err then
-    return false, 'Invalid game state: ' .. err
+  local ok, validated_state = pcall(game_state.parse, game_state, state)
+  if not ok then
+    return false, 'Invalid game state: ' .. validated_state
   end
 
   -- Save to file
@@ -204,25 +206,21 @@ end
 local function load_game()
   local raw_state = dofile('savegame.lua')
 
-  local state, err = pcall(game_state.parse, raw_state)
-  if err then
-    return nil, 'Corrupted save file: ' .. err
+  local ok, state = pcall(game_state.parse, game_state, raw_state)
+  if not ok then
+    return nil, 'Corrupted save file: ' .. state
   end
 
   return state, nil
 end
 ```
 
-### Recursive Validation
-
-TODO
-
 ### Validation Utilities
 
 ```lua
 -- Safe parsing utility
 local function safe_parse(schema, data)
-  local ok, result = pcall(schema.parse, data)
+  local ok, result = pcall(schema.parse, schema, data)
   return ok and result or nil, not ok and result or nil
 end
 
