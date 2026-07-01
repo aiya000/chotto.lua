@@ -272,7 +272,7 @@ if (result.success) {
 
 ```lua
 -- Method 1: Exception handling with pcall
-local ok, user = pcall(user_schema.parse, data)
+local ok, user = pcall(function() return user_schema:parse(data) end)
 if ok then
   print(user.name)
 else
@@ -281,7 +281,7 @@ end
 
 -- Method 2: Helper function (similar to safeParse)
 local function safe_parse(schema, data)
-  local ok, result = pcall(schema.parse, data)
+  local ok, result = pcall(function() return schema:parse(data) end)
   return ok and result or nil, not ok and result or nil
 end
 
@@ -349,7 +349,7 @@ if (result.success) {
 
 **After (chotto.lua):**
 ```lua
-local ok, result = pcall(user_schema.parse, data)
+local ok, result = pcall(function() return user_schema:parse(data) end)
 if ok then
   -- Use result
 else
@@ -358,7 +358,7 @@ end
 
 -- Or using helper function
 local function safe_parse(schema, data)
-  local ok, result = pcall(schema.parse, data)
+  local ok, result = pcall(function() return schema:parse(data) end)
   return ok and result or nil, not ok and result or nil
 end
 
@@ -437,7 +437,7 @@ local user_schema = chotto.object({...}) -- Create once, reuse many times
 -- Use pcall efficiently
 local function validate_many_users(users)
   for i, user_data in ipairs(users) do
-    local ok, parsed_user = pcall(user_schema.parse, user_data)
+    local ok, parsed_user = pcall(function() return user_schema:parse(user_data) end)
     if not ok then
       return nil, "User " .. i .. " invalid: " .. parsed_user
     end

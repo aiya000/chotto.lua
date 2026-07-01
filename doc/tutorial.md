@@ -119,7 +119,7 @@ local schema = chotto.integer()
 local result = schema.parse(42) -- Works fine
 
 -- Safe parsing with pcall
-local ok, result = pcall(schema.parse, "not a number")
+local ok, result = pcall(function() return schema:parse("not a number") end)
 if ok then
   print("Valid:", result)
 else
@@ -138,7 +138,7 @@ local user_schema = chotto.object({
 
 -- Safe validation function
 local function validate_user(data)
-  local ok, result = pcall(user_schema.parse, data)
+  local ok, result = pcall(function() return user_schema:parse(data) end)
   if ok then
     return result, nil
   else
@@ -340,7 +340,7 @@ local api_response = chotto.object({
 
 -- Validate API responses safely
 local function handle_api_response(raw_response)
-  local ok, response = pcall(api_response.parse, raw_response)
+  local ok, response = pcall(function() return api_response:parse(raw_response) end)
   if not ok then
     print("Invalid API response:", response)
     return nil
@@ -379,7 +379,7 @@ local config_schema = chotto.object({
 local function load_config(config_file)
   local raw_config = dofile(config_file) -- or JSON.decode(), etc.
 
-  local ok, config = pcall(config_schema.parse, raw_config)
+  local ok, config = pcall(function() return config_schema:parse(raw_config) end)
   if not ok then
     error("Configuration validation failed: " .. config)
   end
@@ -411,7 +411,7 @@ local user_schema = chotto.object({
 
 ```lua
 -- ✅ Good - safe validation
-local ok, result = pcall(schema.parse, data)
+local ok, result = pcall(function() return schema:parse(data) end)
 if ok then
   -- use result
 else
@@ -446,7 +446,7 @@ local user_list_schema = chotto.object({
 ```lua
 -- Create utility functions for common patterns
 local function safe_parse(schema, data)
-  local ok, result = pcall(schema.parse, data)
+  local ok, result = pcall(function() return schema:parse(data) end)
   return ok and result or nil, not ok and result or nil
 end
 
@@ -465,7 +465,7 @@ print("Valid user:", user.name)
 ```lua
 -- Add context to your validation
 local function validate_user_registration(data)
-  local ok, user = pcall(user_schema.parse, data)
+  local ok, user = pcall(function() return user_schema:parse(data) end)
   if not ok then
     return nil, "User registration validation failed: " .. user
   end
