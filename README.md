@@ -302,6 +302,39 @@ chotto.lua is **strongly inspired** by **TypeScript Zod**, sharing similar:
 
 [^because-keyword]: Because `function` and `nil` are reserved keywords in Lua
 
+### 🎯 Future Goal: Full Zod Parity with Stronger LuaCATS Generics
+
+> **chotto.lua aims to function exactly like Zod — once LuaCATS generics become powerful enough!**
+
+Currently, the biggest gap between chotto.lua and Zod is **automatic type inference**.
+In Zod, the TypeScript type system infers result types from schemas automatically:
+
+```typescript
+// TypeScript Zod — type is inferred automatically
+const userSchema = z.object({ name: z.string(), age: z.number() });
+type User = z.infer<typeof userSchema>; // { name: string; age: number }
+```
+
+In chotto.lua today, you must write explicit luaCATS annotations because the Lua
+type system (luaCATS) does not yet support the generic inference needed to derive
+return types from schema definitions automatically:
+
+```lua
+-- chotto.lua today — annotation required due to luaCATS limitations
+---@type chotto.Schema<{name: string, age: integer}>
+local user_schema = c.object({ name = c.string(), age = c.integer() })
+```
+
+However, **luaCATS generics are actively evolving**.
+When they become expressive enough to support full generic type propagation,
+chotto.lua intends to eliminate the need for manual annotations entirely —
+providing the same seamless, schema-driven type inference that Zod offers in
+TypeScript.
+
+In other words: **the vision of chotto.lua is to be "Zod for Lua"** in every
+meaningful sense, and the only thing standing between today's chotto.lua and that
+vision is the current state of luaCATS generics.
+
 ## 📚 Documentation
 
 - **[Tutorial](doc/tutorial.md)** - Step-by-step guide and best practices

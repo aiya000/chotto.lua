@@ -37,6 +37,24 @@ Both chotto.lua and TypeScript Zod share the same core philosophy:
 - Pure Lua implementation (no dependencies)
 - Lua conventions and idioms
 
+### 🎯 The Big-Picture Vision
+
+> **chotto.lua aims to be "Zod for Lua" — fully, not just partially.**
+
+The main limitation today is that **luaCATS generics** are not yet powerful enough
+to automatically infer result types from schema definitions the way TypeScript's
+type system can.
+As a result, users currently need to write explicit `---@type` annotations for
+complex schemas.
+
+This is a **temporary** constraint, not a design decision.
+Once luaCATS generics evolve to support the necessary level of type propagation,
+chotto.lua intends to provide exactly the same seamless, automatic type inference
+that Zod provides in TypeScript — with no manual annotations required.
+
+In short: **when LuaCATS generics become strong enough, chotto.lua aims to work
+exactly like Zod.**
+
 ## Syntax Comparison
 
 ### Basic Types
