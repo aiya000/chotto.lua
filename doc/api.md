@@ -1,14 +1,11 @@
 # chotto.lua API Reference
 
-Comprehensive API documentation for chotto.lua, with practical usage examples.
+Comprehensive API documentation for chotto.lua.
 
 ## Table of Contents
 
 1. [Complete API Reference](#complete-api-reference)
-2. [Basic Examples](#basic-examples)
-3. [Real-World Use Cases](#real-world-use-cases)
-4. [Advanced Patterns](#advanced-patterns)
-5. [Integration Examples](#integration-examples)
+2. [Examples](#examples)
 
 ## Complete API Reference
 
@@ -65,7 +62,7 @@ schema:safe_parse(data)         -- Returns (true, data) on success or (false, er
 
 Public luaCATS types are namespaced under `chotto.*`, for example `chotto.Schema<T>`.
 
-There is also an additional method `:ensure()` for validation without return values. See [Validation with ensure()](#validation-with-ensure) for details.
+There is also an additional method `:ensure()` for validation without return values. See [Validation with ensure()](examples.md#validation-with-ensure) for details.
 
 ### Primitive Types
 
@@ -334,8 +331,6 @@ local status_code = c.union({
 ---@type HttpStatusCode
 local code = status_code:parse(404)
 ```
-
-## Real-World Use Cases
 
 ### API Request/Response Validation
 
